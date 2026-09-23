@@ -151,14 +151,22 @@ export function stripInstallParams(url) {
   return rest ? `${path}?${rest}` : path;
 }
 
-export function renderInstallPageHtml(template, { host, url } = {}) {
+export function renderInstallPageHtml(template, { host, url, appName } = {}) {
   return String(template)
-    .replaceAll("{{APP_NAME}}", escapeHtml(appNameFromHost(host)))
+    .replaceAll("{{APP_NAME}}", escapeHtml(installedAppName(host, appName)))
     .replaceAll("{{APP_URL}}", escapeHtml(stripInstallParams(url)));
 }
 
-export function renderWebManifest(hostHeader) {
-  const name = appNameFromHost(hostHeader);
+/** grok.me hosts keep their slug name. Anywhere else, the site's own title wins. */
+export function installedAppName(hostHeader, appName) {
+  const fromHost = appNameFromHost(hostHeader);
+  const override = String(appName ?? "").trim();
+  if (fromHost !== DEFAULT_APP_NAME) return fromHost;
+  return override || fromHost;
+}
+
+export function renderWebManifest(hostHeader, appName) {
+  const name = installedAppName(hostHeader, appName);
   return JSON.stringify(
     {
       name,

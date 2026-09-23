@@ -1,10 +1,60 @@
-/* Dream-journal push worker. Static file so the browser can register it at /. */
+const SHELL = "roya-shell-v1";
+
 self.addEventListener("install", (event) => {
   event.waitUntil(self.skipWaiting());
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    caches
+      .keys()
+      .then((keys) => Promise.all(keys.filter((key) => key !== SHELL).map((key) => caches.delete(key))))
+      .then(() => self.clients.claim()),
+  );
+});
+
+function isAsset(url) {
+  return (
+    url.pathname.startsWith("/assets/") ||
+    url.pathname.startsWith("/__grok/") ||
+    url.pathname === "/favicon.svg" ||
+    url.pathname === "/sw.js"
+  );
+}
+
+self.addEventListener("fetch", (event) => {
+  const req = event.request;
+  if (req.method !== "GET") return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
+
+  if (req.mode === "navigate") {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(SHELL).then((cache) => cache.put("/", copy)).catch(() => {});
+          return res;
+        })
+        .catch(async () => (await caches.match("/")) || caches.match(req)),
+    );
+    return;
+  }
+
+  if (!isAsset(url)) return;
+  event.respondWith(
+    caches.match(req).then(
+      (hit) =>
+        hit ||
+        fetch(req).then((res) => {
+          if (res.ok) {
+            const copy = res.clone();
+            caches.open(SHELL).then((cache) => cache.put(req, copy)).catch(() => {});
+          }
+          return res;
+        }),
+    ),
+  );
 });
 
 self.addEventListener("push", (event) => {

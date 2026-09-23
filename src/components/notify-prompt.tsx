@@ -30,7 +30,11 @@ export function NotifyPrompt() {
   const fa = lang === "fa";
 
   useEffect(() => {
-    if (typeof window === "undefined" || !("Notification" in window)) return;
+    if (typeof window === "undefined") return;
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    }
+    if (!("Notification" in window)) return;
     if (Notification.permission === "granted" || Notification.permission === "denied") return;
     if (sessionStorage.getItem(LATER) === "1") return;
     setOpen(true);
