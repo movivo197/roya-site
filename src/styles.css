@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0c0e12;
+  --color-surface: #15181f;
+  --color-raised: #1c2029;
+  --color-fg: #ece8e1;
+  --color-muted: #9a958c;
+  --color-subtle: #6e6a64;
+  --color-accent: #c5ccd1;
+  --color-accent-fg: #0c0e12;
+  --color-border: #2a2e37;
+  --color-ring: #c5ccd1;
+  --color-warn: #b08968;
+  --color-ok: #8eae98;
+  --font-sans: "Vazirmatn", "Segoe UI", system-ui, sans-serif;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+}
+
+html[data-theme="light"] {
+  --color-bg: #f3eee6;
+  --color-surface: #fbf7f1;
+  --color-raised: #efe8dc;
+  --color-fg: #1c1915;
+  --color-muted: #6f675c;
+  --color-subtle: #8a8175;
+  --color-accent: #2a2f36;
+  --color-accent-fg: #fbf7f1;
+  --color-border: #ddd4c6;
+  --color-ring: #2a2f36;
+  --color-warn: #8a5a32;
+  --color-ok: #3f6b52;
+}
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  html,
+  body,
+  #app {
+    min-height: 100%;
+    background: var(--color-bg);
+    color: var(--color-fg);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    line-height: 1.7;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-accent) 28%, transparent);
+  }
+}
+
+.atlas-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .atlas-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 1024px) {
+  .atlas-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+.atlas-card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 240px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
